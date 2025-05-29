@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu May 29 19:53:23 2025
+Created on Thu May 29 20:13:41 2025
 
 @author: Gavin
 """
@@ -42,17 +42,23 @@ dataset = TensorDataset(X, y)
 loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
 # Define a simple neural network classifier
-class SimpleClassifier(torch.nn.Module): 
-    # TODO: Write a neural network to solve this classification problem
+class SimpleClassifier(torch.nn.Module):
     
-    pass
+    def __init__(self):
+        super().__init__()
+        
+        self.net = torch.nn.Sequential(
+            torch.nn.Linear(2, 16),
+            torch.nn.ReLU(),
+            torch.nn.Linear(16, 3)  # 3 output classes
+        )
 
-# TODO: Set the learning_rate
-learning_rate = 0
+    def forward(self, x):
+        return self.net(x)
 
 model = SimpleClassifier()
 loss_fn = torch.nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
 # Training loop with loss and accuracy tracking
 epochs = 100
@@ -65,14 +71,32 @@ for epoch in range(epochs):
     total = 0
 
     for batch_X, batch_y in loader:
-        # TODO: Implement the training loop
-        
-        pass
+        logits = model(batch_X)
+        loss = loss_fn(logits, batch_y)
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        # Track loss
+        total_loss += loss.item() * batch_X.size(0)
+
+        # Convert logits to probabilities, then to predictions
+        probs = torch.nn.functional.softmax(logits, dim=1)
+        preds = torch.argmax(probs, dim=1)
+
+        # Track accuracy
+        correct += (preds == batch_y).sum().item()
+        total += batch_y.size(0)
+
+    epoch_loss = total_loss / total
+    epoch_acc = correct / total
+
+    loss_history.append(epoch_loss)
+    acc_history.append(epoch_acc)
 
     if epoch % 10 == 0 or epoch == epochs - 1:
-        # TODO: Report the metrics every 10 epochs
-        
-        pass
+        print(f"Epoch {epoch}: Loss = {epoch_loss:.4f}, Accuracy = {epoch_acc:.4f}")
 
 
 # Plot loss and accuracy over time
