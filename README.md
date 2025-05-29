@@ -585,3 +585,9 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 ```bash
 pip install matplotlib
 ```
+
+### Install SK-Learn
+
+```bash
+pip install scikit-learn
+```
