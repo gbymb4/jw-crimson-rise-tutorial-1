@@ -23,10 +23,14 @@ torch.manual_seed(seed)
 # Generate data (y = 2x + 10 with some noise)
 X = torch.rand(100) * 10  # X values from 0 to 10
 
-true_gradient = 2
-true_intercept = 10
+true_a = 2
+true_b = 5
+true_c = 10
 
-y = true_gradient * X + true_intercept + torch.randn_like(X) * 2  # add some noise
+y = true_a * X ** 2 + true_b * X + true_c + torch.randn_like(X) * 2  # add some noise
+
+plt.scatter(X, y)
+plt.show()
 
 # Define a simple model class using torch.nn.Parameter
 class LinearModel(torch.nn.Module):
@@ -57,7 +61,7 @@ optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
 
 # Training loop
-epochs = 100
+epochs = 1000
 loss_history = []
 for epoch in range(epochs):
     y_pred = model(X)
@@ -69,18 +73,19 @@ for epoch in range(epochs):
 
     loss_history.append(loss.item())
 
-    plt.figure(figsize=(8, 5))
-    plt.scatter(X, y, label='Actual Data')
-    plt.plot(X, y_pred.detach(), color='red', label='Model Prediction')
-    plt.title(f"Epoch {epoch} — Loss: {loss.item():.2f}")
-    plt.xlabel("x")
-    plt.ylabel("y")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+    if epoch % 10 == 0:
+        plt.figure(figsize=(8, 5))
+        plt.scatter(X, y, label='Actual Data')
+        plt.plot(X, y_pred.detach(), color='red', label='Model Prediction')
+        plt.title(f"Epoch {epoch} — Loss: {loss.item():.2f}")
+        plt.xlabel("x")
+        plt.ylabel("y")
+        plt.legend()
+        plt.grid(True)
+        plt.show()
 
     print(f"Epoch {epoch}: gradient = {model.gradient.item():.2f}, intercept = {model.intercept.item():.2f}, loss = {loss.item():.2f}")
-    time.sleep(0.1)
+    # time.sleep(0.1)
         
 # Final results
 print(f"\nLearned weight: {model.gradient.item():.2f}")
